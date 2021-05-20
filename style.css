@@ -2,13 +2,14 @@
     float: left;
 }
 
+.right {
+    width: 360px;
+    height: 100%;
+}
+
 .wrapper1 {
     position: relative;
     height: 400px;
-}
-
-.wrapper2 {
-    width: 400px;
 }
 
 #queueCanvas {

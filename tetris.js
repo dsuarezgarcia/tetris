@@ -19,6 +19,8 @@ function getRandomColor() {
     return colors[Math.floor(Math.random() * colors.length)];
 }
 
+const scoreInput = document.getElementById("scoreInput");
+
 /*
 * The tetrominoes
 */
@@ -162,13 +164,14 @@ function getRandomTetromino(color) {
 
 class Board {
 
-    constructor() {
+    constructor(score) {
         this.matrix = []
         for (var row = 0; row < ROWS; row++) {
             this.matrix.push(new Array(COLS).fill(null))
         }
         this.tetromino = null;
         this.filledRows = {};
+        this.score = score;
     }
 
     spawnTetromino() {
@@ -217,6 +220,8 @@ class Board {
             this.removeRows(filledRows);
         }
 
+        this.score.rowsFilled(filledRows.length);
+
         this.draw();
     }
 
@@ -250,6 +255,7 @@ class Board {
 
     makeTetrominoGoDown() {
         this.tetromino.goDown();
+        this.score.increase();
         this.draw();
     }
 
@@ -429,7 +435,8 @@ function checkGameOver(board) {
 function gameOver() {
     document.removeEventListener("keydown", moveTetromino);
     clearInterval(mainLoopID);
-    alert("GAME OVER");
+    var score = scoreInput.value;
+    alert("GAME OVER!\nYour score is: " + score);
     start();
 }
 
@@ -480,6 +487,39 @@ function draw() {
 }
 
 
+class Score {
+
+    static get FILLED_ROW_VALUE() { return 100; }
+
+
+    constructor() {
+        this.score = 0;
+        this.update();
+    }
+
+
+    update() {
+        scoreInput.setAttribute("value", this.score);
+    }
+
+    increase() {
+        this.score++;
+        this.update();
+    }
+
+    rowsFilled(filledRows) {
+
+        var value = 0;
+        for (var n = filledRows; n > 0; n--) {
+            value += n * Score.FILLED_ROW_VALUE;    
+        }
+        this.score += value;
+        this.update();
+    }
+
+}
+
+
 function loop() {
 
     // Get or Spawn Tetromino
@@ -504,9 +544,11 @@ function loop() {
 var mainLoopID = null;
 var board = null;
 var queue = null;
+var score = null;
 
 function start() {
-    board = new Board();
+    score = new Score();
+    board = new Board(score);
     queue = new Queue();
     board.spawnTetromino();
     queue.draw();
